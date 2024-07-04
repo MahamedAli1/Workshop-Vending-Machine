@@ -1,48 +1,53 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-public abstract class CandyandwaterVendingMachine implements VendingMachine {
+public class CandyandwaterVendingMachine implements VendingMachine {
     private int depositPool;
-    private final List<Product> products;
+    private Map<String, Product> products;
 
     public CandyandwaterVendingMachine() {
         this.depositPool = 0;
-        this.products = new ArrayList<>();
-
-        products.add(new ChocolateBar("Snickers", 10, 1, "Milk"));
-        products.add(new Candy("Skittles", 5, 2, "Fruity"));
-        products.add(new Water("Mineral Water", 15, 3, 500));
-        // Add more products as needed
+        this.products = new HashMap<>();
+        products.put("1", new ChocolateBar());
+        products.put("2", new Candy());
+        products.put("3", new Water());
     }
 
     @Override
     public void addCurrency(int amount) {
-        if (amount == 1 || amount == 2 || amount == 5 || amount == 10 || amount == 20 ||
-                amount == 50 || amount == 100 || amount == 200 || amount == 500 || amount == 1000) {
-            depositPool += amount;
-        } else {
-            throw new IllegalArgumentException("Invalid currency amount");
+        int[] validAmounts = {1, 2, 5, 10, 20, 50, 100, 200, 500, 1000};
+        for (int validAmount : validAmounts) {
+            if (amount == validAmount) {
+                depositPool += amount;
+                return;
+            }
         }
+        throw new IllegalArgumentException("Invalid currency amount.");
     }
 
     @Override
-    public Product requestProduct(int productId) {
-        for (Product product : products) {
-            if (product.getId() == productId && depositPool >= product.getPrice()) {
-                depositPool -= product.getPrice();
-                return product;
-            }
+    public Product request(String productId) {
+        Product product = products.get(productId);
+        if (product != null && depositPool >= product.getPrice()) {
+            depositPool -= product.getPrice();
+            return product;
         }
-        return null; // Or throw an exception
+        return null;
     }
 
     @Override
     public int endSession() {
-        int change = depositPool;
+        int balance = depositPool;
         depositPool = 0;
-        return change;
+        return balance;
+    }
+
+    @Override
+    public String getDescription(String productId) {
+        Product product = products.get(productId);
+        return product != null ? product.getDescription() : "Product not found.";
     }
 
     @Override
@@ -52,11 +57,8 @@ public abstract class CandyandwaterVendingMachine implements VendingMachine {
 
     @Override
     public String[] getProducts() {
-        String[] productArray = new String[products.size()];
-        for (int i = 0; i < products.size(); i++) {
-            Product product = products.get(i);
-            productArray[i] = "ID: " + product.getId() + ", Name: " + product.getName() + ", Price: " + product.getPrice();
-        }
-        return productArray;
+        return products.values().stream()
+                .map(p -> p.getId() + ": " + p.getName() + " - " + p.getPrice() + " SEK")
+                .toArray(String[]::new);
     }
 }
