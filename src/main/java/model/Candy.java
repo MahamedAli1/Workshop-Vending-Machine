@@ -1,15 +1,35 @@
 package model;
 
-public class Candy extends Product {
-    private final String flavor;
+public class Candy implements Product {
+    private final String id;
+    private final String name;
+    private final int price;
+    private final String description;
 
-    public Candy(String name, int price, int id, String flavor) {
-        super(name, price, id);
-        this.flavor = flavor;
+    public Candy() {
+        this.id = "2";
+        this.name = "Candy";
+        this.price = 5;
+        this.description = "Sweet and colorful candy.";
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public int getPrice() {
+        return price;
     }
 
     @Override
     public String getDescription() {
-        return "Candy: " + getName() + ", Flavor: " + flavor + ", Price: " + getPrice();
+        return description;
     }
 }
